@@ -83,54 +83,167 @@ export const getQualifiers = (allGroups: Group[]) => {
 
 export const getPairings = (firsts: Standing[], seconds: Standing[], bestThirds: Standing[]) => {
   const getS = (groupId: string, pos: number) => {
-    return pos === 1 ? firsts.find(s => s.groupId === groupId) : 
-           pos === 2 ? seconds.find(s => s.groupId === groupId) : null;
+    return pos === 1 ? firsts.find(s => s.groupId === groupId) || undefined : 
+           pos === 2 ? seconds.find(s => s.groupId === groupId) || undefined : undefined;
   };
 
   return [
-    { home: getS('A', 1), away: bestThirds[0] }, // R32-1
-    { home: getS('B', 2), away: getS('C', 2) }, // R32-2
-    { home: getS('E', 1), away: getS('F', 2) }, // R32-3
-    { home: getS('G', 1), away: bestThirds[1] }, // R32-4
-    { home: getS('I', 1), away: bestThirds[2] }, // R32-5
-    { home: getS('J', 2), away: getS('K', 2) }, // R32-6
-    { home: getS('C', 1), away: bestThirds[3] }, // R32-7
-    { home: getS('D', 1), away: getS('E', 2) }, // R32-8
-    { home: getS('B', 1), away: bestThirds[4] }, // R32-9
-    { home: getS('A', 2), away: getS('D', 2) }, // R32-10
-    { home: getS('F', 1), away: bestThirds[5] }, // R32-11
-    { home: getS('H', 1), away: getS('I', 2) }, // R32-12
-    { home: getS('K', 1), away: bestThirds[6] }, // R32-13
-    { home: getS('L', 2), away: getS('G', 2) }, // R32-14
-    { home: getS('J', 1), away: bestThirds[7] }, // R32-15
-    { home: getS('L', 1), away: getS('H', 2) }, // R32-16
+    // R32-1 (Match 74): 1E vs 3A/B/C/D/F
+    { home: getS('E', 1), away: bestThirds[0], placeholderHome: '1° Grupo E', placeholderAway: '3° Grupo A/B/C/D/F' },
+    // R32-2 (Match 77): 1I vs 3C/D/F/G/H
+    { home: getS('I', 1), away: bestThirds[1], placeholderHome: '1° Grupo I', placeholderAway: '3° Grupo C/D/F/G/H' },
+    // R32-3 (Match 73): 2A vs 2B
+    { home: getS('A', 2), away: getS('B', 2), placeholderHome: '2° Grupo A', placeholderAway: '2° Grupo B' },
+    // R32-4 (Match 75): 1F vs 2C
+    { home: getS('F', 1), away: getS('C', 2), placeholderHome: '1° Grupo F', placeholderAway: '2° Grupo C' },
+    // R32-5 (Match 83): 2K vs 2L
+    { home: getS('K', 2), away: getS('L', 2), placeholderHome: '2° Grupo K', placeholderAway: '2° Grupo L' },
+    // R32-6 (Match 84): 1H vs 2J
+    { home: getS('H', 1), away: getS('J', 2), placeholderHome: '1° Grupo H', placeholderAway: '2° Grupo J' },
+    // R32-7 (Match 81): 1D vs 3B/E/F/I/J
+    { home: getS('D', 1), away: bestThirds[2], placeholderHome: '1° Grupo D', placeholderAway: '3° Grupo B/E/F/I/J' },
+    // R32-8 (Match 82): 1G vs 3A/E/H/I/J
+    { home: getS('G', 1), away: bestThirds[3], placeholderHome: '1° Grupo G', placeholderAway: '3° Grupo A/E/H/I/J' },
+    // R32-9 (Match 76): 1C vs 2F
+    { home: getS('C', 1), away: getS('F', 2), placeholderHome: '1° Grupo C', placeholderAway: '2° Grupo F' },
+    // R32-10 (Match 78): 2E vs 2I
+    { home: getS('E', 2), away: getS('I', 2), placeholderHome: '2° Grupo E', placeholderAway: '2° Grupo I' },
+    // R32-11 (Match 79): 1A vs 3C/E/F/H/I
+    { home: getS('A', 1), away: bestThirds[4], placeholderHome: '1° Grupo A', placeholderAway: '3° Grupo C/E/F/H/I' },
+    // R32-12 (Match 80): 1L vs 3E/H/I/J/K
+    { home: getS('L', 1), away: bestThirds[5], placeholderHome: '1° Grupo L', placeholderAway: '3° Grupo E/H/I/J/K' },
+    // R32-13 (Match 86): 1J vs 2H
+    { home: getS('J', 1), away: getS('H', 2), placeholderHome: '1° Grupo J', placeholderAway: '2° Grupo H' },
+    // R32-14 (Match 88): 2D vs 2G
+    { home: getS('D', 2), away: getS('G', 2), placeholderHome: '2° Grupo D', placeholderAway: '2° Grupo G' },
+    // R32-15 (Match 85): 1B vs 3E/F/G/I/J
+    { home: getS('B', 1), away: bestThirds[6], placeholderHome: '1° Grupo B', placeholderAway: '3° Grupo E/F/G/I/J' },
+    // R32-16 (Match 87): 1K vs 3D/E/I/J/L
+    { home: getS('K', 1), away: bestThirds[7], placeholderHome: '1° Grupo K', placeholderAway: '3° Grupo D/E/I/J/L' }
   ];
 };
 
 export const createInitialKnockout = (): KnockoutMatch[] => {
   const matches: KnockoutMatch[] = [];
 
+  // Configuración de la ruta del cuadro de eliminatorias (Dieciseisavos -> Octavos -> Cuartos -> Semis -> Final)
+  const r32Config: Record<number, { next: string; side: 'home' | 'away' }> = {
+    1: { next: 'R16-1', side: 'home' },
+    2: { next: 'R16-1', side: 'away' },
+    3: { next: 'R16-2', side: 'home' },
+    4: { next: 'R16-2', side: 'away' },
+    5: { next: 'R16-3', side: 'home' },
+    6: { next: 'R16-3', side: 'away' },
+    7: { next: 'R16-4', side: 'home' },
+    8: { next: 'R16-4', side: 'away' },
+    9: { next: 'R16-5', side: 'home' },
+    10: { next: 'R16-5', side: 'away' },
+    11: { next: 'R16-6', side: 'home' },
+    12: { next: 'R16-6', side: 'away' },
+    13: { next: 'R16-7', side: 'home' },
+    14: { next: 'R16-7', side: 'away' },
+    15: { next: 'R16-8', side: 'home' },
+    16: { next: 'R16-8', side: 'away' }
+  };
+
   for (let i = 1; i <= 16; i++) {
-    const nextMatchId = `R16-${Math.ceil(i / 2)}`;
-    const nextMatchSide = i % 2 !== 0 ? 'home' : 'away';
-    matches.push({ id: `R32-${i}`, round: 'R32', nextMatchId, nextMatchSide, homeTeamId: null, awayTeamId: null, homeTeamName: null, awayTeamName: null, homeScore: null, awayScore: null, winnerId: null });
+    const config = r32Config[i];
+    matches.push({
+      id: `R32-${i}`,
+      round: 'R32',
+      nextMatchId: config.next,
+      nextMatchSide: config.side,
+      homeTeamId: null,
+      awayTeamId: null,
+      homeTeamName: null,
+      awayTeamName: null,
+      homeScore: null,
+      awayScore: null,
+      winnerId: null
+    });
   }
+
+  const r16Config: Record<number, { next: string; side: 'home' | 'away' }> = {
+    1: { next: 'QF-1', side: 'home' },
+    2: { next: 'QF-1', side: 'away' },
+    3: { next: 'QF-2', side: 'home' },
+    4: { next: 'QF-2', side: 'away' },
+    5: { next: 'QF-3', side: 'home' },
+    6: { next: 'QF-3', side: 'away' },
+    7: { next: 'QF-4', side: 'home' },
+    8: { next: 'QF-4', side: 'away' }
+  };
+
   for (let i = 1; i <= 8; i++) {
-    const nextMatchId = `QF-${Math.ceil(i / 2)}`;
-    const nextMatchSide = i % 2 !== 0 ? 'home' : 'away';
-    matches.push({ id: `R16-${i}`, round: 'R16', nextMatchId, nextMatchSide, homeTeamId: null, awayTeamId: null, homeTeamName: null, awayTeamName: null, homeScore: null, awayScore: null, winnerId: null });
+    const config = r16Config[i];
+    matches.push({
+      id: `R16-${i}`,
+      round: 'R16',
+      nextMatchId: config.next,
+      nextMatchSide: config.side,
+      homeTeamId: null,
+      awayTeamId: null,
+      homeTeamName: null,
+      awayTeamName: null,
+      homeScore: null,
+      awayScore: null,
+      winnerId: null
+    });
   }
+
+  const qfConfig: Record<number, { next: string; side: 'home' | 'away' }> = {
+    1: { next: 'SF-1', side: 'home' },
+    2: { next: 'SF-1', side: 'away' },
+    3: { next: 'SF-2', side: 'home' },
+    4: { next: 'SF-2', side: 'away' }
+  };
+
   for (let i = 1; i <= 4; i++) {
-    const nextMatchId = `SF-${Math.ceil(i / 2)}`;
-    const nextMatchSide = i % 2 !== 0 ? 'home' : 'away';
-    matches.push({ id: `QF-${i}`, round: 'QF', nextMatchId, nextMatchSide, homeTeamId: null, awayTeamId: null, homeTeamName: null, awayTeamName: null, homeScore: null, awayScore: null, winnerId: null });
+    const config = qfConfig[i];
+    matches.push({
+      id: `QF-${i}`,
+      round: 'QF',
+      nextMatchId: config.next,
+      nextMatchSide: config.side,
+      homeTeamId: null,
+      awayTeamId: null,
+      homeTeamName: null,
+      awayTeamName: null,
+      homeScore: null,
+      awayScore: null,
+      winnerId: null
+    });
   }
+
   for (let i = 1; i <= 2; i++) {
-    const nextMatchId = `F-1`;
-    const nextMatchSide = i % 2 !== 0 ? 'home' : 'away';
-    matches.push({ id: `SF-${i}`, round: 'SF', nextMatchId, nextMatchSide, homeTeamId: null, awayTeamId: null, homeTeamName: null, awayTeamName: null, homeScore: null, awayScore: null, winnerId: null });
+    matches.push({
+      id: `SF-${i}`,
+      round: 'SF',
+      nextMatchId: 'F-1',
+      nextMatchSide: i === 1 ? 'home' : 'away',
+      homeTeamId: null,
+      awayTeamId: null,
+      homeTeamName: null,
+      awayTeamName: null,
+      homeScore: null,
+      awayScore: null,
+      winnerId: null
+    });
   }
-  matches.push({ id: `F-1`, round: 'F', nextMatchId: null, nextMatchSide: null, homeTeamId: null, awayTeamId: null, homeTeamName: null, awayTeamName: null, homeScore: null, awayScore: null, winnerId: null });
+
+  matches.push({
+    id: 'F-1',
+    round: 'F',
+    nextMatchId: null,
+    nextMatchSide: null,
+    homeTeamId: null,
+    awayTeamId: null,
+    homeTeamName: null,
+    awayTeamName: null,
+    homeScore: null,
+    awayScore: null,
+    winnerId: null
+  });
 
   return matches;
 };

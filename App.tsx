@@ -9,12 +9,12 @@ import { getQualifiers, createInitialKnockout, getPairings } from './services/to
 const App: FC = () => {
   const [loading, setLoading] = useState(false);
   const [groups, setGroups] = useState<Group[]>(() => {
-    const saved = localStorage.getItem('world_cup_2026_data_v3');
+    const saved = localStorage.getItem('world_cup_2026_data_v4');
     return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(INITIAL_GROUPS));
   });
 
   const [knockoutMatches, setKnockoutMatches] = useState<KnockoutMatch[]>(() => {
-    const saved = localStorage.getItem('world_cup_2026_knockout_v3');
+    const saved = localStorage.getItem('world_cup_2026_knockout_v4');
     return saved ? JSON.parse(saved) : createInitialKnockout();
   });
 
@@ -40,11 +40,11 @@ const App: FC = () => {
 
   // Persistencia de datos
   useEffect(() => {
-    localStorage.setItem('world_cup_2026_data_v3', JSON.stringify(groups));
+    localStorage.setItem('world_cup_2026_data_v4', JSON.stringify(groups));
   }, [groups]);
 
   useEffect(() => {
-    localStorage.setItem('world_cup_2026_knockout_v3', JSON.stringify(knockoutMatches));
+    localStorage.setItem('world_cup_2026_knockout_v4', JSON.stringify(knockoutMatches));
   }, [knockoutMatches]);
 
   // Sincronización automática de nombres en el cuadro (solo para entrada manual)
@@ -63,10 +63,10 @@ const App: FC = () => {
         return {
           ...m,
           homeTeamId: pairing?.home?.teamId || null,
-          homeTeamName: pairing?.home?.teamName || `1${pairing?.home?.groupId || '?'}`,
+          homeTeamName: pairing?.home?.teamName || pairing?.placeholderHome || 'TBD',
           homeTeamCode: pairing?.home?.teamCode,
           awayTeamId: pairing?.away?.teamId || null,
-          awayTeamName: pairing?.away?.teamName || `3ro?`,
+          awayTeamName: pairing?.away?.teamName || pairing?.placeholderAway || 'TBD',
           awayTeamCode: pairing?.away?.teamCode
         };
       }
@@ -117,8 +117,8 @@ const App: FC = () => {
 
   const resetAll = () => {
     if (window.confirm('⚠️ ¿Estás seguro de que quieres borrar todos los datos?')) {
-      localStorage.removeItem('world_cup_2026_data_v3');
-      localStorage.removeItem('world_cup_2026_knockout_v3');
+      localStorage.removeItem('world_cup_2026_data_v4');
+      localStorage.removeItem('world_cup_2026_knockout_v4');
       window.location.reload();
     }
   };
