@@ -55,3 +55,11 @@ export interface KnockoutMatch {
   awayScore: number | null;
   winnerId: string | null;
 }
+
+export interface ScheduleInfo {
+  date: string;
+  time: string;
+  venue: string;
+  phase: string;
+}
+

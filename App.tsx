@@ -4,6 +4,7 @@ import { Group, KnockoutMatch, RoundType } from './types';
 import { INITIAL_GROUPS } from './constants';
 import GroupTable from './components/GroupTable';
 import KnockoutMatchCard from './components/KnockoutMatchCard';
+import CalendarView from './components/CalendarView';
 import { getQualifiers, createInitialKnockout, getPairings } from './services/tournamentLogic';
 
 const App: FC = () => {
@@ -18,7 +19,7 @@ const App: FC = () => {
     return saved ? JSON.parse(saved) : createInitialKnockout();
   });
 
-  const [activeTab, setActiveTab] = useState<'groups' | 'knockout'>('groups');
+  const [activeTab, setActiveTab] = useState<'groups' | 'knockout' | 'calendar'>('groups');
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('world_cup_2026_theme');
     if (saved !== null) return saved === 'dark';
@@ -162,6 +163,7 @@ const App: FC = () => {
         <nav className="flex gap-2 p-1 bg-black/40 rounded-2xl border border-white/5">
           <button onClick={() => setActiveTab('groups')} className={`px-8 py-3 rounded-xl text-sm font-black uppercase transition-all ${activeTab === 'groups' ? 'bg-green-500 text-black shadow-lg shadow-green-500/20' : 'text-gray-500 hover:text-white'}`}>Grupos</button>
           <button onClick={() => setActiveTab('knockout')} className={`px-8 py-3 rounded-xl text-sm font-black uppercase transition-all ${activeTab === 'knockout' ? 'bg-green-500 text-black shadow-lg shadow-green-500/20' : 'text-gray-500 hover:text-white'}`}>Eliminatorias</button>
+          <button onClick={() => setActiveTab('calendar')} className={`px-8 py-3 rounded-xl text-sm font-black uppercase transition-all ${activeTab === 'calendar' ? 'bg-green-500 text-black shadow-lg shadow-green-500/20' : 'text-gray-500 hover:text-white'}`}>Calendario</button>
         </nav>
 
         <div className="flex gap-3 items-center">
@@ -179,13 +181,14 @@ const App: FC = () => {
       </header>
 
       <main className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        {activeTab === 'groups' ? (
+        {activeTab === 'groups' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {groups.map(group => (
               <GroupTable key={group.id} group={group} bestThirdsIds={bestThirdsIds} onUpdateMatch={updateMatch} onUpdateTeamName={updateTeamName} />
             ))}
           </div>
-        ) : (
+        )}
+        {activeTab === 'knockout' && (
           <div className="overflow-x-auto pb-12 scrollbar-hide">
             <div className="flex gap-12 min-w-max px-4">
               {renderRound('R32', 'Dieciseisavos')}
@@ -225,6 +228,9 @@ const App: FC = () => {
               </div>
             </div>
           </div>
+        )}
+        {activeTab === 'calendar' && (
+          <CalendarView groups={groups} knockoutMatches={knockoutMatches} />
         )}
       </main>
 
